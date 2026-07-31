@@ -1,0 +1,40 @@
+{
+  "build_label": "vulnerable-mk4-v5.0.0",
+  "firmware_commit": "2a444b8e34c07ed613550ba20999aab172a8d39f",
+  "firmware_tag": "2022-01-17T1542-v5.0.0",
+  "branch": "master (tag checkout, detached HEAD)",
+  "board": "COLDCARD_MK4",
+  "make_target": "MK4-Makefile (pre-unification build system; this tag predates the MK-Makefile merge)",
+  "submodules": {
+    "external/micropython": "6d7527823c3fd9b2c860c8cc1612cc68f6e2cef2",
+    "external/libngu": "5b5a6b82a68ded6527537b3dc30416ea50af8d3d",
+    "external/micropython lib/stm32lib": "c1b7a415778247dd3881a1f3d11ea02190cbc94d",
+    "external/libngu libs/secp256k1": "c6b6b8f1bb044d7d1aa065ebb674adde98a36a8e"
+  },
+  "toolchain": {
+    "docker_image": "coldcard-build-toolchain",
+    "docker_image_id": "sha256:43b061a7a8d1d139e2fa5d7918ed23d4422ca54572d70f701a2a21584076414d",
+    "dockerfile_source": "stm32/dockerfile.build (from this same firmware commit, alpine:3.16.0 base)",
+    "arm_gcc_version": "arm-none-eabi-gcc (Alpine Linux) 11.2.0"
+  },
+  "build_command": "make -f MK4-Makefile DEBUG_BUILD=0 all",
+  "compiler_flags_source": "As defined by the checked-out tree's own Makefiles; not modified for this build. See build.log for the exact per-file CC/AS invocations as run.",
+  "host_architecture": "x86_64 (Docker container on x86_64 Linux host)",
+  "build_timestamp_utc": "2026-07-31T22:33Z (approximate, see evidence/builds/vulnerable/build.log mtime for exact host time)",
+  "output_hashes_sha256": {
+    "firmware.elf": "6a9783126a8d1d7208a4d9c7609436ab1b8a2b9e99343950ce847e6e435299a2",
+    "firmware.dfu": "070642e161b38aad69410f89eb175758f1aa2006781081f612d1a646d31f1d94",
+    "ports/stm32/rng.o (upstream MicroPython fork)": "00bfe1015036f4d5fdf04bd438665bb4ca930a9aea2ce007e09a460561c22d76",
+    "boards/COLDCARD_MK4/rng.o (board-specific)": "9a7acdf794afbf34924767f9419309f354cd523c0f0edb3d300904856f4f45f9"
+  },
+  "result_summary": {
+    "rng_get_defined_by": "ports/stm32/rng.o (upstream MicroPython fork), as a global T symbol",
+    "board_rng_o_defines_rng_get": false,
+    "linked_firmware_rng_get_address": "08059a34",
+    "confirms": "MICROPY_HW_ENABLE_RNG=0 on this board causes MicroPython's own Yasmarang-fallback rng.c to compile and be the sole global definer of rng_get(); the board's rng.c never shadows it on this tag. Matches evidence/commits/findings.md sections 5-6, now confirmed by an actual compiled and linked binary rather than source reading alone."
+  },
+  "notes": [
+    "This is NOT the official Coinkite release build (no signing keys, no bootloader flashing, no comparison against a published .dfu). It is a from-source build of the same commit using the project's own documented Docker toolchain and Makefile target, sufficient to inspect symbol resolution.",
+    "make setup was run first to create the boards/COLDCARD and boards/COLDCARD_MK4 symlinks into external/micropython/ports/stm32/boards/, build libsecp256k1 inside external/libngu, and build mpy-cross. See build.log for full setup and build output."
+  ]
+}

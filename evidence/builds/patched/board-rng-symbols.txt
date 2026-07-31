@@ -1,0 +1,9 @@
+00000000 b last_value
+00000000 t pyb_rng_get
+00000000 t pyb_rng_get_bytes
+00000000 R pyb_rng_get_bytes_obj
+00000000 R pyb_rng_get_obj
+00000000 T random32
+00000000 T random_buffer
+00000000 T rng_get
+00000000 t rng_get_or_fault

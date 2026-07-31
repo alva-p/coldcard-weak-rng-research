@@ -1,0 +1,49 @@
+{
+  "generated_at_utc": "2026-07-31T20:25:09.073224+00:00",
+  "method_note": "Started from the consolidation address, pulled its full on-chain funding history, kept only funding transactions inside the target block range, identified which address(es) funded it directly, then pulled the full on-chain funding history of those address(es) and classified each of those by block height against the same range. No transaction list was assumed in advance.",
+  "consolidation_address": "bc1qq85v2c926eg6pgxhwp6q7lf6cnsz80qs3fcu9r",
+  "intermediate_address": "bc1qnk4zh9qcnap2mycp56qjrgza3cc8ylrh8fecp0",
+  "computed": {
+    "tx_count": 500,
+    "utxo_count": 1324,
+    "total_btc": 594.47722484,
+    "fee_btc": 0.036567,
+    "fee_btc_including_consolidation_tx": 0.0436134,
+    "consolidated_btc": 562.01962301,
+    "block_range": [
+      960188,
+      960191
+    ],
+    "window_start_utc": "2026-07-30T01:36:08+00:00",
+    "window_end_utc": "2026-07-30T01:51:26+00:00",
+    "script_type_counts_all_addresses_involved": {
+      "v0_p2wpkh": 490,
+      "p2pkh": 5,
+      "p2sh": 5
+    },
+    "tx_count_by_block": {
+      "960188": 63,
+      "960189": 110,
+      "960190": 168,
+      "960191": 159
+    }
+  },
+  "published_atlas21": {
+    "tx_count": 500,
+    "utxo_count": 1324,
+    "total_btc": 594.5,
+    "fee_btc": 0.044,
+    "consolidated_btc": 562,
+    "block_range": [
+      960188,
+      960191
+    ],
+    "window_start_utc": "2026-07-30T01:36:00Z",
+    "window_end_utc": "2026-07-30T01:51:00Z",
+    "native_segwit_count": 490,
+    "legacy_count": 5,
+    "nested_segwit_count": 5,
+    "taproot_count": 0,
+    "multisig_count": 0
+  }
+}

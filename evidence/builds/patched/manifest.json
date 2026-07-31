@@ -1,0 +1,47 @@
+{
+  "build_label": "patched-mk4-v5.6.0",
+  "firmware_commit": "3238f6fd9977eed786012d0034a04d888c3263bb",
+  "firmware_tag": "2026-07-31T0519-v5.6.0",
+  "branch": "master (tag checkout, detached HEAD)",
+  "board": "COLDCARD_MK4",
+  "make_target": "MK-Makefile (unified Mk3/Mk4/Q build system, post fcd40b8b refactor)",
+  "submodules": {
+    "external/micropython": "4107246f8a080807b62c3b4838e71e812ea68b6f",
+    "external/libngu": "537519a829259622ea6b0334fbafd6cae852852f",
+    "external/micropython lib/stm32lib": "c1b7a415778247dd3881a1f3d11ea02190cbc94d",
+    "external/libngu libs/secp256k1": "e3a885d42a7800c1ccebad94ad1e2b82c4df5c65"
+  },
+  "toolchain": {
+    "docker_image": "coldcard-build-toolchain",
+    "docker_image_id": "sha256:43b061a7a8d1d139e2fa5d7918ed23d4422ca54572d70f701a2a21584076414d",
+    "dockerfile_source": "stm32/dockerfile.build (from the vulnerable build's commit; same image reused for both builds so the toolchain itself is identical across the comparison)",
+    "arm_gcc_version": "arm-none-eabi-gcc (Alpine Linux) 11.2.0"
+  },
+  "build_command": "make -f MK-Makefile DEBUG_BUILD=0 all",
+  "compiler_flags_source": "As defined by the checked-out tree's own Makefiles; not modified for this build. See build.log for exact per-file CC/AS invocations.",
+  "host_architecture": "x86_64 (Docker container on x86_64 Linux host)",
+  "build_timestamp_utc": "2026-07-31T22:36Z (approximate, see evidence/builds/patched/build.log mtime for exact host time)",
+  "output_hashes_sha256": {
+    "firmware.elf": "19b79fb0086c1a26396b2a1c77245f3d6f707d45bd2348cbc77a7be4ce769598",
+    "firmware.dfu": "79bee36f9086b19fda5dcd2495ff43caae65c0da332142548e2dec06254e0982",
+    "ports/stm32/rng.o (upstream MicroPython fork)": "fc81fe914524174664cdc8363e003d975a15d4b62b4955b64de32873336d98f1",
+    "boards/COLDCARD_MK4/rng.o (board-specific)": "b18f3cd30671fadff2e4a0df33d2aaf4ad773ffa1194e9c45ddf01ed52a63f93"
+  },
+  "result_summary": {
+    "rng_get_defined_by": "boards/COLDCARD_MK4/rng.o (board-specific hardware implementation), as a global T symbol",
+    "upstream_rng_o_defines_any_symbol": false,
+    "linked_firmware_rng_get_address": "08067584",
+    "rng_code_check_build_step": "ran automatically as part of `make -f MK-Makefile all` (added by commit ca724637); completed with no error output, confirming the build-time guard passes on this tag",
+    "confirms": "The hotfix compiles ports/stm32/rng.o from /dev/null (independently confirmed empty by our own nm --defined-only, zero symbols), and the board's rng.c now exports a global rng_get() that wraps the real hardware rng_get_or_fault(). Matches evidence/commits/findings.md section 1 (commit ca724637), now confirmed by an actual compiled and linked binary."
+  },
+  "diff_vs_vulnerable_build": {
+    "rng_get_source_object": "ports/stm32/rng.o (upstream fallback) -> boards/COLDCARD_MK4/rng.o (board hardware)",
+    "upstream_rng_o_symbol_count": "6 defined symbols (vulnerable) -> 0 defined symbols (patched)",
+    "board_rng_o_symbol_count": "7 defined symbols, none named rng_get (vulnerable) -> 8 defined symbols, includes global rng_get (patched)",
+    "firmware_size_bytes_text": "831644 (vulnerable) vs 997356 (patched) - not directly comparable as a security metric; the patched tag also includes other feature changes accumulated between 2022-01-17 and 2026-07-31, not just the RNG fix"
+  },
+  "notes": [
+    "This is NOT the official Coinkite release build (no signing keys, no bootloader flashing, no comparison against a published .dfu). It is a from-source build of the same commit using the project's own documented Docker toolchain and Makefile target, sufficient to inspect symbol resolution.",
+    "The same Docker image (coldcard-build-toolchain, same image ID) was used for both the vulnerable and patched builds, so the compiler and binutils versions are held constant across the comparison; only the source tree differs."
+  ]
+}

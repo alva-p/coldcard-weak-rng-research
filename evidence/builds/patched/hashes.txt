@@ -1,0 +1,4 @@
+19b79fb0086c1a26396b2a1c77245f3d6f707d45bd2348cbc77a7be4ce769598  /work/external/micropython/ports/stm32/build-COLDCARD_MK4/firmware.elf
+79bee36f9086b19fda5dcd2495ff43caae65c0da332142548e2dec06254e0982  /work/external/micropython/ports/stm32/build-COLDCARD_MK4/firmware.dfu
+fc81fe914524174664cdc8363e003d975a15d4b62b4955b64de32873336d98f1  /work/external/micropython/ports/stm32/build-COLDCARD_MK4/rng.o
+b18f3cd30671fadff2e4a0df33d2aaf4ad773ffa1194e9c45ddf01ed52a63f93  /work/external/micropython/ports/stm32/build-COLDCARD_MK4/boards/COLDCARD_MK4/rng.o

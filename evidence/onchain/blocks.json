@@ -1,0 +1,104 @@
+{
+  "tool": "tools/onchain/fetch_blocks.py",
+  "fetched_at_utc": "2026-07-31T20:24:34.083979+00:00",
+  "api_base": "https://mempool.space/api",
+  "range": {
+    "start": 960188,
+    "end": 960191
+  },
+  "validation": "heights sequential, hashes distinct, previousblockhash chain verified",
+  "blocks": [
+    {
+      "height": 960188,
+      "block_hash": "0000000000000000000186e53ea105d0d9b8453d14666b2bee16b68510544fe4",
+      "source_urls": {
+        "block_height": "https://mempool.space/api/block-height/960188",
+        "block_meta": "https://mempool.space/api/block/0000000000000000000186e53ea105d0d9b8453d14666b2bee16b68510544fe4"
+      },
+      "raw": {
+        "id": "0000000000000000000186e53ea105d0d9b8453d14666b2bee16b68510544fe4",
+        "height": 960188,
+        "version": 537133056,
+        "timestamp": 1785375368,
+        "tx_count": 6601,
+        "size": 1695942,
+        "weight": 3994737,
+        "merkle_root": "55b36ff81feff251f876dd2a7d4ae40ff12041a6f707cc5c8ea92835c9357be4",
+        "previousblockhash": "00000000000000000001e866bee768b72c49bec3cfd8d22a21aac0a956fb5c38",
+        "mediantime": 1785373820,
+        "nonce": 2493991655,
+        "bits": 386022100,
+        "difficulty": 126231507121868.19
+      }
+    },
+    {
+      "height": 960189,
+      "block_hash": "000000000000000000013f7dbd45306e3c040eaa1c727cc48e69fb6cb182f7dd",
+      "source_urls": {
+        "block_height": "https://mempool.space/api/block-height/960189",
+        "block_meta": "https://mempool.space/api/block/000000000000000000013f7dbd45306e3c040eaa1c727cc48e69fb6cb182f7dd"
+      },
+      "raw": {
+        "id": "000000000000000000013f7dbd45306e3c040eaa1c727cc48e69fb6cb182f7dd",
+        "height": 960189,
+        "version": 704643072,
+        "timestamp": 1785375441,
+        "tx_count": 5514,
+        "size": 1638348,
+        "weight": 3993012,
+        "merkle_root": "ec05fb3ce37d404aa42267fe6a04af135f2d923e30f57a19efe6cafb30fe7eeb",
+        "previousblockhash": "0000000000000000000186e53ea105d0d9b8453d14666b2bee16b68510544fe4",
+        "mediantime": 1785374878,
+        "nonce": 3307150540,
+        "bits": 386022100,
+        "difficulty": 126231507121868.19
+      }
+    },
+    {
+      "height": 960190,
+      "block_hash": "000000000000000000005cd3ef8a8583807efa1cd1566a6608b16ca297fb0f8e",
+      "source_urls": {
+        "block_height": "https://mempool.space/api/block-height/960190",
+        "block_meta": "https://mempool.space/api/block/000000000000000000005cd3ef8a8583807efa1cd1566a6608b16ca297fb0f8e"
+      },
+      "raw": {
+        "id": "000000000000000000005cd3ef8a8583807efa1cd1566a6608b16ca297fb0f8e",
+        "height": 960190,
+        "version": 537051136,
+        "timestamp": 1785375780,
+        "tx_count": 5076,
+        "size": 1617810,
+        "weight": 3994053,
+        "merkle_root": "dfa5b12d210f3f4c6d32033fdf5ff7bfa68f934fdaeeb1b70a9b7787fc86be8e",
+        "previousblockhash": "000000000000000000013f7dbd45306e3c040eaa1c727cc48e69fb6cb182f7dd",
+        "mediantime": 1785375168,
+        "nonce": 1266651527,
+        "bits": 386022100,
+        "difficulty": 126231507121868.19
+      }
+    },
+    {
+      "height": 960191,
+      "block_hash": "000000000000000000003094b4c6bfd6caa47f12985b8b78a54c7524dd1bc606",
+      "source_urls": {
+        "block_height": "https://mempool.space/api/block-height/960191",
+        "block_meta": "https://mempool.space/api/block/000000000000000000003094b4c6bfd6caa47f12985b8b78a54c7524dd1bc606"
+      },
+      "raw": {
+        "id": "000000000000000000003094b4c6bfd6caa47f12985b8b78a54c7524dd1bc606",
+        "height": 960191,
+        "version": 973078528,
+        "timestamp": 1785376286,
+        "tx_count": 5803,
+        "size": 1616282,
+        "weight": 3992741,
+        "merkle_root": "a9d842acbd49aad29590c709085cf395f4457cfe806c85ea80263e677a3241f7",
+        "previousblockhash": "000000000000000000005cd3ef8a8583807efa1cd1566a6608b16ca297fb0f8e",
+        "mediantime": 1785375236,
+        "nonce": 485890542,
+        "bits": 386022100,
+        "difficulty": 126231507121868.19
+      }
+    }
+  ]
+}

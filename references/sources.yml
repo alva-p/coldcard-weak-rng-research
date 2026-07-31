@@ -1,0 +1,383 @@
+# Source registry for the COLDCARD entropy failure research.
+#
+# authority_level scale (highest to lowest):
+#   1 = source code / commit / raw blockchain data (independently reproducible by anyone)
+#   2 = official vendor advisory / documentation
+#   3 = independent technical analysis by a named, credentialed org (e.g. Block)
+#   4 = independent on-chain / journalistic investigation with shown methodology
+#   5 = general tech press
+#   6 = social media / forum, anecdotal only
+#
+# claims_supported values reference §4 of the working brief:
+#   root-cause, entropy-estimate, affected-versions, onchain-sweep, mitigations,
+#   timeline, cve-status, legal, community-context
+
+- id: firmware-repo
+  title: "Coldcard/firmware (git repository)"
+  author_or_org: "Coinkite Inc."
+  url: "https://github.com/Coldcard/firmware"
+  publication_date: "ongoing"
+  accessed_at: "2026-07-31"
+  source_type: "source-code"
+  authority_level: 1
+  claims_supported: [root-cause, affected-versions, timeline]
+  archived_url: ""
+  notes: >
+    Cloned locally (--filter=blob:none) and inspected directly with git log/show/tag/
+    ls-tree/merge-base. See evidence/commits/findings.md for everything derived from
+    this source. 182 tags at access time. Default branch: master. Relevant branches
+    found beyond master: v4, v4-legacy, edge, new_edge, mk4, q1staging, pr-rng-fix.
+
+- id: micropython-coldcard-fork
+  title: "Coldcard/micropython (git repository, Coinkite fork of MicroPython)"
+  author_or_org: "Coinkite Inc. / MicroPython contributors"
+  url: "https://github.com/Coldcard/micropython"
+  publication_date: "ongoing"
+  accessed_at: "2026-07-31"
+  source_type: "source-code"
+  authority_level: 1
+  claims_supported: [root-cause]
+  archived_url: ""
+  notes: >
+    IMPORTANT CORRECTION to the working brief: the brief pointed at
+    micropython/micropython (upstream). COLDCARD actually pins its own fork,
+    Coldcard/micropython, as the external/micropython submodule. ports/stm32/rng.c in
+    THIS fork (not upstream) is what was inspected. Upstream micropython/micropython
+    was not analyzed and any claim about it should be treated as unverified.
+
+- id: libngu-repo
+  title: "switck/libngu (git repository)"
+  author_or_org: "Switck (Peter D. Gray's crypto library)"
+  url: "https://github.com/switck/libngu"
+  publication_date: "ongoing"
+  accessed_at: "2026-07-31"
+  source_type: "source-code"
+  authority_level: 1
+  claims_supported: [root-cause, entropy-estimate]
+  archived_url: ""
+  notes: >
+    ngu/random.c inspected at multiple pinned SHAs. The brief-suggested pinned SHA
+    cf1988aa54969a7d2dcef261ee664a41a7013262 exists in this repo but does NOT match the
+    submodule pointer of any Coldcard/firmware tag checked so far (v4.0.0, v4.0.1,
+    v5.6.0, v1.5.0Q, v6.6.0X, v6.6.0QX). Treat as unverified pending a tag match -
+    see RESEARCH_GAPS.md.
+
+- id: coinkite-mk3-advisory
+  title: "Mk3 Security Advisory"
+  author_or_org: "Coinkite Inc."
+  url: "https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/"
+  publication_date: "2026-07-30 (updated 2026-07-31 12:39 EDT)"
+  accessed_at: "2026-07-31"
+  source_type: "vendor-advisory"
+  authority_level: 2
+  claims_supported: [affected-versions, mitigations, timeline]
+  archived_url: ""
+  notes: >
+    States Mk3 affected range as 4.0.1-4.1.9 (not 4.0.0). Code analysis
+    (evidence/commits/findings.md) shows the regression commit b18723dd first shipped
+    IN v4.0.0 (2021-03-17). This is a real advisory-vs-code discrepancy, not resolved
+    by assumption - see RESEARCH_GAPS.md item G-2. Fetched via automated page-content
+    extraction, not manually re-read line by line; treat fine-grained quotes as
+    PRELIMINARY pending manual re-check.
+
+- id: coinkite-entropy-backgrounder
+  title: "Technical Deep Dive into the Entropy Issue"
+  author_or_org: "Coinkite Inc."
+  url: "https://blog.coinkite.com/entropy-technical-backgrounder/"
+  publication_date: "2026-07-30 (updated 2026-07-31 12:39 EDT)"
+  accessed_at: "2026-07-31"
+  source_type: "vendor-technical-analysis"
+  authority_level: 2
+  claims_supported: [root-cause, entropy-estimate]
+  archived_url: ""
+  notes: >
+    Describes the #ifndef-vs-nonzero MICROPY_HW_ENABLE_RNG guard bug. This description
+    matches, almost verbatim, what was independently confirmed by direct source
+    inspection of ngu/random.c (see evidence/commits/findings.md §6) - upgraded from
+    PRELIMINARY to CONFIRMED on that specific point. Gives ~40 bits (Mk3) / ~72 bits
+    (Mk4/Q/Mk5); per the extraction performed, this document does not itself discuss
+    the 32-bit reseed truncation (that is documented directly in source - see
+    findings.md §5 - and discussed by the Block report, id: block-engineering-report).
+
+- id: block-engineering-report
+  title: "Predictable RNG Fallback and 32-Bit Reseed in COLDCARD Firmware"
+  author_or_org: "Block Inc. (Block Bitcoin Engineering and Security)"
+  url: "https://engineering.block.xyz/blog/predictable-rng-fallback-and-32-bit-reseed-in-coldcard-firmware"
+  publication_date: "2026-07-30"
+  accessed_at: "2026-07-31"
+  source_type: "independent-technical-analysis"
+  authority_level: 3
+  claims_supported: [entropy-estimate, root-cause, timeline]
+  archived_url: ""
+  notes: >
+    Self-describes as published before completing empirical/benchmark exploitation
+    testing, due to indications of active exploitation - treat its entropy figures
+    (~2^16.29, ~2^40.7, <=2^32, ~2^73.3) as PRELIMINARY model outputs, not measured
+    costs. Lists paper wallets, Seed XOR, cloning/USB ECDH, Key Teleport, Web2FA,
+    Secure Notes/HSM as other ngu.random consumers worth separate risk analysis.
+
+- id: atlas21-onchain
+  title: "594 bitcoin drained in fifteen minutes: what we know so far"
+  author_or_org: "Atlas21 (author: Federico Rivi)"
+  url: "https://atlas21.com/594-bitcoin-drained-15-minutes-theft/"
+  publication_date: "2026-07-30"
+  accessed_at: "2026-07-31"
+  source_type: "independent-onchain-investigation"
+  authority_level: 4
+  claims_supported: [onchain-sweep]
+  archived_url: ""
+  notes: >
+    Primary numbers used as the external benchmark for tools/onchain reconstruction:
+    500 addresses, 500 tx, 1324 UTXO, 594.5 BTC, ~0.044 BTC fees, blocks 960188-960191,
+    01:36-01:51 UTC, consolidation address bc1qq85v2c926eg6pgxhwp6q7lf6cnsz80qs3fcu9r,
+    562 BTC consolidated. Additional detail beyond the working brief: reports 490/500
+    swept addresses as native segwit, 5 legacy, 5 nested segwit; states no multisig
+    among the 1324 UTXO and no Taproot address among victims. Treat all of the above as
+    PRELIMINARY (independent journalism with shown on-chain method, not yet
+    independently re-derived by this repo's own tooling) until tools/onchain/
+    reproduces or contradicts it - see evidence/onchain/validation-report.md (Phase 2).
+
+- id: coindesk-coverage
+  title: "Major Bitcoin Wallet Flaw Drains 594 BTC in 25-Minute Sweep"
+  author_or_org: "CoinDesk"
+  url: "https://www.coindesk.com/tech/2026/07/31/major-bitcoin-wallet-flaw-drains-594-btc-in-25-minute-sweep"
+  publication_date: "2026-07-31"
+  accessed_at: "2026-07-31"
+  source_type: "tech-press"
+  authority_level: 5
+  claims_supported: [onchain-sweep, timeline]
+  archived_url: ""
+  notes: >
+    Secondary summary; use only for corroboration of timeline/scale, never as the sole
+    source for a number that code or on-chain data can establish directly.
+
+- id: press-roundup-other
+  title: "Assorted July 2026 tech-press coverage (Protos, TechTimes, KuCoin, Glitchwire, StartupFortune)"
+  author_or_org: "various"
+  url: "https://protos.com/coldcard-attack-25-minutes-500-wallets-38m-in-btc-gone/"
+  publication_date: "2026-07-30/31"
+  accessed_at: "2026-07-31"
+  source_type: "tech-press"
+  authority_level: 5
+  claims_supported: [onchain-sweep, timeline]
+  archived_url: ""
+  notes: >
+    Found via web search, not individually deep-read. Flagged here because these
+    outlets show internally-inconsistent numbers versus Atlas21 and versus each other
+    (e.g. one summary cites a 01:31-01:56 UTC window on "July 31" and a "4.0.1 through
+    5.0.3" Mk3 affected range - the latter mixes Mk3 (4.x) and Mk4 (5.x) version
+    families and does not match either the advisory or the firmware repo's tag
+    families). Treat all of this bucket as ANECDOTAL/UNVERIFIED; do not cite for any
+    number that Atlas21, the advisory, or the repo itself can establish.
+
+- id: coldcard-upgrade-docs
+  title: "Firmware Upgrade Instructions"
+  author_or_org: "Coinkite Inc."
+  url: "https://coldcard.com/docs/upgrade/"
+  publication_date: "ongoing"
+  accessed_at: "2026-07-31"
+  source_type: "vendor-documentation"
+  authority_level: 2
+  claims_supported: [mitigations]
+  archived_url: ""
+  notes: "HTTP 200 confirmed; not yet deep-extracted."
+
+- id: coldcard-downloads
+  title: "Official firmware downloads"
+  author_or_org: "Coinkite Inc."
+  url: "https://coldcard.com/downloads"
+  publication_date: "ongoing"
+  accessed_at: "2026-07-31"
+  source_type: "vendor-distribution"
+  authority_level: 2
+  claims_supported: [affected-versions]
+  archived_url: ""
+  notes: "Not yet fetched."
+
+- id: coldcard-version-history
+  title: "Firmware Version History"
+  author_or_org: "Coinkite Inc."
+  url: "https://coldcard.com/docs/version-history/"
+  publication_date: "ongoing"
+  accessed_at: "2026-07-31"
+  source_type: "vendor-documentation"
+  authority_level: 2
+  claims_supported: [affected-versions, timeline]
+  archived_url: ""
+  notes: "Not yet fetched; cross-check against evidence/commits/findings.md tag table in Phase 2."
+
+- id: coldcard-master-seed-docs
+  title: "Master Seed documentation"
+  author_or_org: "Coinkite Inc."
+  url: "https://coldcard.com/docs/master-seed/"
+  publication_date: "ongoing"
+  accessed_at: "2026-07-31"
+  source_type: "vendor-documentation"
+  authority_level: 2
+  claims_supported: [mitigations]
+  archived_url: ""
+  notes: "Not yet fetched."
+
+- id: coldcard-dice-math-docs
+  title: "Verifying Dice Roll Math"
+  author_or_org: "Coinkite Inc."
+  url: "https://coldcard.com/docs/verifying-dice-roll-math/"
+  publication_date: "ongoing"
+  accessed_at: "2026-07-31"
+  source_type: "vendor-documentation"
+  authority_level: 2
+  claims_supported: [mitigations, entropy-estimate]
+  archived_url: ""
+  notes: "Not yet fetched."
+
+- id: coldcard-security-policy
+  title: "Coldcard Security and Verification"
+  author_or_org: "Coinkite Inc."
+  url: "https://coldcard.com/resources/security/coldcard-security-and-verification"
+  publication_date: "ongoing"
+  accessed_at: "2026-07-31"
+  source_type: "vendor-policy"
+  authority_level: 2
+  claims_supported: [legal]
+  archived_url: ""
+  notes: "HTTP 200 confirmed; used as the disclosure-contact reference in SECURITY.md."
+
+- id: ckcc-protocol-repo
+  title: "Coldcard/ckcc-protocol (git repository)"
+  author_or_org: "Coinkite Inc."
+  url: "https://github.com/Coldcard/ckcc-protocol"
+  publication_date: "ongoing"
+  accessed_at: "2026-07-31"
+  source_type: "source-code"
+  authority_level: 1
+  claims_supported: [root-cause]
+  archived_url: ""
+  notes: "Referenced by the brief as the official device-communication tool for a sacrificial-hardware lab (Phase 3+); not needed for Phase 1."
+
+- id: mempool-space-address
+  title: "mempool.space address explorer: bc1qq85v2c926eg6pgxhwp6q7lf6cnsz80qs3fcu9r"
+  author_or_org: "mempool.space"
+  url: "https://mempool.space/address/bc1qq85v2c926eg6pgxhwp6q7lf6cnsz80qs3fcu9r"
+  publication_date: "n/a (live chain data)"
+  accessed_at: "2026-07-31"
+  source_type: "onchain-data"
+  authority_level: 1
+  claims_supported: [onchain-sweep]
+  archived_url: ""
+  notes: >
+    API reachability confirmed (block-height, block, address endpoints all HTTP 200).
+    Actual data pull performed by tools/onchain/fetch_blocks.py - see
+    evidence/onchain/blocks.json for the resulting raw data and its access timestamp.
+
+- id: reddit-victim-report
+  title: "Full panic - one of my wallets was drained"
+  author_or_org: "r/Bitcoin user (unverified identity)"
+  url: "https://www.reddit.com/r/Bitcoin/comments/1vatgl4/full_panic_one_of_my_wallets_was_drained/"
+  publication_date: "2026-07-30"
+  accessed_at: "2026-07-31"
+  source_type: "social-media"
+  authority_level: 6
+  claims_supported: [timeline]
+  archived_url: ""
+  notes: "ANECDOTAL. Not fetched/verified in Phase 1 - timeline/context use only, never as sole support for a technical or financial claim."
+
+- id: kloaec-tweet
+  title: "Kevin Loaec public post"
+  author_or_org: "Kevin Loaec (@KLoaec)"
+  url: "https://x.com/KLoaec/status/2082882772092211589"
+  publication_date: "2026-07-30"
+  accessed_at: "2026-07-31"
+  source_type: "social-media"
+  authority_level: 6
+  claims_supported: [timeline]
+  archived_url: ""
+  notes: "ANECDOTAL. Not fetched in Phase 1."
+
+- id: robhamilton-tweet
+  title: "Rob Hamilton public post"
+  author_or_org: "Rob Hamilton (@Rob1Ham)"
+  url: "https://x.com/Rob1Ham/status/2082896614218203616"
+  publication_date: "2026-07-30"
+  accessed_at: "2026-07-31"
+  source_type: "social-media"
+  authority_level: 6
+  claims_supported: [timeline]
+  archived_url: ""
+  notes: "ANECDOTAL. Not fetched in Phase 1."
+
+- id: coldcardwallet-advisory-tweet
+  title: "COLDCARD official advisory thread"
+  author_or_org: "COLDCARD (@COLDCARDwallet)"
+  url: "https://x.com/COLDCARDwallet/status/2082961993070247948"
+  publication_date: "2026-07-30/31"
+  accessed_at: "2026-07-31"
+  source_type: "vendor-social-media"
+  authority_level: 2
+  claims_supported: [timeline, mitigations]
+  archived_url: ""
+  notes: "Vendor-authored, but a social post rather than the canonical advisory page - use coinkite-mk3-advisory as primary, this only for exact public-announcement timing. Not fetched in Phase 1."
+
+- id: kelbie-postmortem
+  title: "coldcard-rng-postmortem"
+  author_or_org: "Kelbie (GitHub user, community)"
+  url: "https://github.com/Kelbie/coldcard-rng-postmortem"
+  publication_date: "2026-07 (exact date not yet confirmed)"
+  accessed_at: "2026-07-31"
+  source_type: "community-analysis"
+  authority_level: 5
+  claims_supported: [root-cause, timeline]
+  archived_url: ""
+  notes: "Confirmed to exist via GitHub API search. Not yet read in full; must be cross-checked against evidence/commits/findings.md before citing any specific claim from it, per the brief's instruction not to treat it as primary."
+
+- id: nvd-search-2026-07-31
+  title: "NVD keyword search: 'coldcard' (API query)"
+  author_or_org: "NIST NVD"
+  url: "https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=coldcard"
+  publication_date: "n/a (live database query)"
+  accessed_at: "2026-07-31T20:04:07.461Z"
+  source_type: "authoritative-negative-result"
+  authority_level: 1
+  claims_supported: [cve-status]
+  archived_url: ""
+  notes: >
+    CONFIRMED: as of the exact query timestamp above, NVD's only result for keyword
+    "coldcard" is CVE-2019-14356 (Mk1/Mk2 OLED power-analysis side channel, status
+    "disputed"), which is unrelated to the 2026 entropy/RNG issue. No CVE has been
+    assigned to this vulnerability as of the cutoff. This satisfies brief §4.4's
+    explicit fallback instruction.
+
+- id: ley-26388-argentina
+  title: "Ley 26.388 (Argentina) - Delitos informáticos"
+  author_or_org: "Gobierno de la República Argentina"
+  url: "https://www.argentina.gob.ar/normativa/nacional/ley-26388-141790/texto"
+  publication_date: "2008-06-25"
+  accessed_at: "2026-07-31"
+  source_type: "legal-primary"
+  authority_level: 1
+  claims_supported: [legal]
+  archived_url: ""
+  notes: "Not legal advice - see DISCLAIMER.md. Not yet deep-read in Phase 1."
+
+- id: cert-cvd-guide
+  title: "The CERT Guide to Coordinated Vulnerability Disclosure"
+  author_or_org: "Software Engineering Institute, Carnegie Mellon University"
+  url: "https://www.sei.cmu.edu/library/cert-guide-to-coordinated-vulnerability-disclosure/"
+  publication_date: "2017 (v1.1, per SEI publication record - to double-check)"
+  accessed_at: "2026-07-31"
+  source_type: "institutional-guidance"
+  authority_level: 2
+  claims_supported: [legal]
+  archived_url: ""
+  notes: "Publication date needs manual confirmation against the SEI page before citing in the report; provisional."
+
+- id: doj-vdp
+  title: "DOJ Vulnerability Disclosure Policy"
+  author_or_org: "U.S. Department of Justice"
+  url: "https://www.justice.gov/jmd/vulnerability-disclosure-policy"
+  publication_date: "ongoing"
+  accessed_at: "2026-07-31"
+  source_type: "institutional-guidance"
+  authority_level: 2
+  claims_supported: [legal]
+  archived_url: ""
+  notes: "Not yet deep-read in Phase 1."
