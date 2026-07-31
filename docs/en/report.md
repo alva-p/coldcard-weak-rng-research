@@ -1,7 +1,7 @@
 # The COLDCARD entropy failure and the ~594.5 BTC sweep: incident report
 
 **Cutoff date:** July 31, 2026
-**Author:** independent, defensive research. See `DISCLAIMER.md`.
+**Author:** independent, defensive research. See [`DISCLAIMER.md`](https://github.com/alva-p/coldcard-weak-rng-research/blob/main/DISCLAIMER.md).
 **Repository:** everything cited here (commits, on-chain evidence, builds, code) lives in this repository and anyone can verify it.
 
 This report separates what is **confirmed by code or by the blockchain**, what is **preliminary** (sourced from a credible outlet but not independently re-derived), and what is **inference** (a reasonable conclusion, not direct proof). That classification appears in parentheses after each significant claim.
@@ -12,7 +12,7 @@ On July 30, 2026, someone drained approximately 594.5 BTC from 500 Bitcoin addre
 
 A Bitcoin wallet depends on an initial random number (the "seed") from which every key is derived. If that number is not actually unpredictable, an attacker can reconstruct it and steal the funds without ever touching the device. That is, in essence, what happened here.
 
-Coinkite (the manufacturer) and Block published technical advisories on July 30 and 31 (`coinkite-mk3-advisory`, `coinkite-entropy-backgrounder`, `block-engineering-report` in `references/sources.yml`). This report does not simply repeat those texts: every technical claim below was independently verified against the public source code and the blockchain.
+Coinkite (the manufacturer) and Block published technical advisories on July 30 and 31 (`coinkite-mk3-advisory`, `coinkite-entropy-backgrounder`, `block-engineering-report` in [`references/sources.yml`](https://github.com/alva-p/coldcard-weak-rng-research/blob/main/references/sources.yml)). This report does not simply repeat those texts: every technical claim below was independently verified against the public source code and the blockchain.
 
 ## How the bug worked (CONFIRMED in code)
 
@@ -23,7 +23,7 @@ COLDCARD's firmware was supposed to use the STM32 chip's hardware random number 
 
 The result: instead of using the real hardware generator, the system fell back to MicroPython's software backup generator, called Yasmarang. Yasmarang is not cryptographically secure. It is seeded with data such as the chip's unique identifier and internal timers, values that are not secret and can, in many cases, be bounded or guessed.
 
-On newer models (Mk4, Mk5, Q) an extra layer was added: data from two secure elements got mixed in. But, verified directly in code (`shared/mk4.py`, `evidence/commits/findings.md` section 5), that mixing reduced to hashing the data and using only the first 4 bytes of the result to "reseed" a single word of Yasmarang's internal state. In other words, even with that improvement, effective entropy was capped at 32 bits in the worst case, well below the 128-bit target.
+On newer models (Mk4, Mk5, Q) an extra layer was added: data from two secure elements got mixed in. But, verified directly in code ([`shared/mk4.py`](https://github.com/Coldcard/firmware/blob/master/shared/mk4.py), [`evidence/commits/findings.md`](https://github.com/alva-p/coldcard-weak-rng-research/blob/main/evidence/commits/findings.md) section 5), that mixing reduced to hashing the data and using only the first 4 bytes of the result to "reseed" a single word of Yasmarang's internal state. In other words, even with that improvement, effective entropy was capped at 32 bits in the worst case, well below the 128-bit target.
 
 ## What I verified myself
 
@@ -37,17 +37,19 @@ The official advisory cites one commit that introduced the bug and one that fixe
 
 ### 2. The Mk3 fix version has no public tag yet
 
-The advisory and the repository's own changelog say version `4.2.0` fixes the issue on Mk3. Checking all 182 tags in the public repository, **no `4.2.0` tag exists**, on any branch, as of this verification. The equivalent fix commit for Mk3 exists, but on an unmerged branch with no version assigned yet. This does not mean the advisory is false, but it does mean the Mk3 release was not published as a verifiable tag at the time of writing (`RESEARCH_GAPS.md`, item G-1).
+The advisory and the repository's own changelog say version `4.2.0` fixes the issue on Mk3. Checking all 182 tags in the public repository, **no `4.2.0` tag exists**, on any branch, as of this verification. The equivalent fix commit for Mk3 exists, but on an unmerged branch with no version assigned yet. This does not mean the advisory is false, but it does mean the Mk3 release was not published as a verifiable tag at the time of writing ([`RESEARCH_GAPS.md`](https://github.com/alva-p/coldcard-weak-rng-research/blob/main/RESEARCH_GAPS.md), item G-1).
 
 ### 3. Independent on-chain reconstruction of the theft
 
 Instead of using a transaction list published by a third party, I rebuilt the sweep from scratch:
 
-1. Starting only from the public address where the funds were consolidated (`bc1qq85v2c926eg6pgxhwp6q7lf6cnsz80qs3fcu9r`), I queried its full on-chain history.
-2. That address received the stolen funds in a single 341-input transaction, inside the block range associated with the incident (960188-960191).
-3. All 341 inputs came from one intermediate address. I traced that intermediate address's full history (502 transactions) and classified each one by block height.
+1. Starting only from the public address where the funds were consolidated ([`bc1qq85v2c926eg6pgxhwp6q7lf6cnsz80qs3fcu9r`](https://mempool.space/address/bc1qq85v2c926eg6pgxhwp6q7lf6cnsz80qs3fcu9r)), I queried its full on-chain history.
+2. That address received the stolen funds in a single 341-input transaction ([`0c6bf853...9d01`](https://mempool.space/tx/0c6bf853a645b699a3b2cd6d8e3c44cf1a02a16f538df08212a44753f75d9d01)), inside the block range associated with the incident ([960188](https://mempool.space/block/0000000000000000000186e53ea105d0d9b8453d14666b2bee16b68510544fe4)-[960191](https://mempool.space/block/000000000000000000003094b4c6bfd6caa47f12985b8b78a54c7524dd1bc606)).
+3. All 341 inputs came from one intermediate address ([`bc1qnk4zh9qcnap2mycp56qjrgza3cc8ylrh8fecp0`](https://mempool.space/address/bc1qnk4zh9qcnap2mycp56qjrgza3cc8ylrh8fecp0)). I traced that intermediate address's full history (502 transactions) and classified each one by block height.
 
-Result: **500 transactions, 1,324 UTXOs consumed, ~594.48 BTC moved**, within the same publicly reported block window. These numbers match, differing only by rounding, what Atlas21 published (`atlas21-onchain` in `references/sources.yml`), but they were derived independently, transaction by transaction, not copied from that source. Full detail, with every TXID, is in `evidence/onchain/drain-transactions.csv`, and the step-by-step method is in `evidence/onchain/methodology.md`.
+Result: **500 transactions, 1,324 UTXOs consumed, ~594.48 BTC moved**, within the same publicly reported block window. These numbers match, differing only by rounding, what Atlas21 published (`atlas21-onchain` in [`references/sources.yml`](https://github.com/alva-p/coldcard-weak-rng-research/blob/main/references/sources.yml)), but they were derived independently, transaction by transaction, not copied from that source.
+
+Full detail, with all 500 TXIDs, in [`evidence/onchain/drain-transactions.csv`](https://github.com/alva-p/coldcard-weak-rng-research/blob/main/evidence/onchain/drain-transactions.csv) (also as [JSON](https://github.com/alva-p/coldcard-weak-rng-research/blob/main/evidence/onchain/drain-transactions.json)), the step-by-step method in [`evidence/onchain/methodology.md`](https://github.com/alva-p/coldcard-weak-rng-research/blob/main/evidence/onchain/methodology.md), and the number-by-number comparison against Atlas21 in [`evidence/onchain/validation-report.md`](https://github.com/alva-p/coldcard-weak-rng-research/blob/main/evidence/onchain/validation-report.md).
 
 ### 4. Compiled proof of the bug, not just code reading
 
@@ -63,7 +65,7 @@ With `arm-none-eabi-nm` (a tool that lists which function ended up in which comp
 | Who defines the function that returns the "random" number? | MicroPython's fallback generator (the weak one) | The board's own code that talks to the real hardware |
 | The project's own automated check (`rng-code-check`) | Did not exist on this version | Ran on its own, no errors |
 
-Full detail, with SHA-256 hashes of every binary and every build log, is in `evidence/builds/vulnerable/` and `evidence/builds/patched/`.
+Full detail, with SHA-256 hashes of every binary and every build log, is in [`evidence/builds/vulnerable/`](https://github.com/alva-p/coldcard-weak-rng-research/tree/main/evidence/builds/vulnerable) and [`evidence/builds/patched/`](https://github.com/alva-p/coldcard-weak-rng-research/tree/main/evidence/builds/patched).
 
 ## Timeline
 
@@ -97,7 +99,7 @@ Full detail, with SHA-256 hashes of every binary and every build log, is in `evi
 - Official firmware repository: https://github.com/Coldcard/firmware
 - Atlas21's initial on-chain investigation: https://atlas21.com/594-bitcoin-drained-15-minutes-theft/
 
-Full list, with a reliability rating for each source, in `references/sources.yml`.
+Full list, with a reliability rating for each source, in [`references/sources.yml`](https://github.com/alva-p/coldcard-weak-rng-research/blob/main/references/sources.yml).
 
 ## Thanks
 
