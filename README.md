@@ -65,3 +65,6 @@ CC BY 4.0 ([`LICENSE-DOCS`](LICENSE-DOCS)).
 Found a vulnerability, or a secret accidentally committed somewhere in this repo? See
 [`SECURITY.md`](SECURITY.md). Do not open a public issue with real seeds, keys, or
 victim data.
+
+<img width="1672" height="941" alt="image" src="https://github.com/user-attachments/assets/dedd6943-385e-4a29-b0c2-50af3bdab7f7" />
+
